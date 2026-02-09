@@ -18,49 +18,45 @@ Pour la configuration C2, le cache d’instructions L1 reste direct-mapped, tand
 * **DL1** : 4 KB, associativité 2, taille de bloc 32 octets
 * **UL2** : 32 KB, associativité 4, taille de bloc 32 octets
 
+
 ## Q2 – Résultats des simulations (Taux de défauts)
 
 Nous avons simulé les quatre variantes de l’algorithme de multiplication de matrices (P1, P2, P3, P4) sur les deux configurations de caches (C1 et C2). Les tableaux ci-dessous résument les taux de défauts (*Miss Rates*) obtenus via gem5.
 
-**Tableau 9 : Taux de défauts dans le cache d’instructions (IL1)**
+### Tableau 9 — Instruction Cache (IL1) Miss Rate
 
-| Programmes | Configuration C1 (Direct Mapped) | Configuration C2 (Associative) |
-| :--- | :---: | :---: |
-| **P1 (normale)** | 0.014486 | 0.013586 |
-| **P2 (pointeur)**| 0.027285 | 0.025370 |
-| **P3 (tempo)** | 0.016803 | 0.015720 |
-| **P4 (unrol)** | 0.036662 | 0.033995 |
+| Programme        | C1        | C2        |
+|------------------|-----------|-----------|
+| P1 (normale)     | 0.000097  | 0.000096  |
+| P2 (pointeur)    | 0.000088  | 0.000088  |
+| P3 (tempo)       | 0.000088  | 0.000088  |
+| P4 (unrol)       | 0.000133  | 0.000134  |
 
-**Tableau 10 : Taux de défauts dans le cache de données (DL1)**
 
-| Programmes | Configuration C1 (Direct Mapped) | Configuration C2 (Associative) |
-| :--- | :---: | :---: |
-| **P1 (normale)** | 0.122857 | 0.059671 |
-| **P2 (pointeur)**| 0.135399 | 0.073022 |
-| **P3 (tempo)** | 0.080969 | 0.065929 |
-| **P4 (unrol)** | 0.090562 | 0.074574 |
+### Tableau 10 — Data Cache (DL1) Miss Rate
 
-**Tableau 11 : Taux de défauts dans le cache unifié (UL2)**
+| Programme        | C1        | C2        |
+|------------------|-----------|-----------|
+| P1 (normale)     | 0.201756  | 0.208527  |
+| P2 (pointeur)    | 0.199701  | 0.205574  |
+| P3 (tempo)       | 0.199700  | 0.205575  |
+| P4 (unrol)       | 0.290973  | 0.299470  |
 
-| Programmes | Configuration C1 (Direct Mapped) | Configuration C2 (Associative) |
-| :--- | :---: | :---: |
-| **P1 (normale)** | 0.122404 | 0.010338 |
-| **P2 (pointeur)**| 0.111330 | 0.010227 |
-| **P3 (tempo)** | 0.154461 | 0.007942 |
-| **P4 (unrol)** | 0.145938 | 0.008691 |
 
-## Q3 – Analyse de la localité de référence pour le code
+### Tableau 11 — Unified Cache L2 (UL2) Miss Rate
 
-**Question :** Les 4 algorithmes de multiplication de matrices présentent-ils une bonne localité de références pour le **code** ? Pourquoi ?
+| Programme        | C1        | C2        |
+|------------------|-----------|-----------|
+| P1 (normale)     | 0.494761  | 0.412146  |
+| P2 (pointeur)    | 0.500437  | 0.422006  |
+| P3 (tempo)       | 0.500438  | 0.422006  |
+| P4 (unrol)       | 0.500487  | 0.422118  |
 
-**Réponse :**
 
-En analysant le Tableau 9 (*IL1 Miss Rate*), nous pouvons conclure que les algorithmes présentent globalement une bonne localité de référence pour le code, mais avec des variations notables selon la technique d'optimisation utilisée :
+## Q3 — Localité de références du code
 
-1.  **P1 (Normale) et P3 (Tempo) :** Ces versions présentent la **meilleure localité** (taux de défauts très faibles, ~1.4% - 1.6%).
-    * **Pourquoi ?** Le code principal est constitué de boucles `for` imbriquées très compactes. Ces instructions tiennent facilement dans le cache L1 d'instructions (4 KB). Une fois chargées, elles sont réutilisées de nombreuses fois (forte localité temporelle) sans générer de nouveaux défauts.
+Les quatre algorithmes de multiplication de matrices présentent une **bonne localité de références pour le code**.  
+Leur exécution repose principalement sur des **boucles imbriquées** qui réutilisent les mêmes instructions de façon répétitive.  
+La taille du code est **faible par rapport à la taille du cache d’instructions (4 KB)**, ce qui permet de conserver la majorité des instructions en cache et explique les **taux de défauts très faibles** observés.  
 
-2.  **P4 (Unroll) :** Cette version présente la **moins bonne localité de code** parmi les quatre (taux de défauts le plus élevé, ~3.4% - 3.7%).
-    * **Pourquoi ?** La technique de *Loop Unrolling* (déroulage de boucle) consiste à dupliquer le corps de la boucle pour réduire le nombre de tests et de sauts. Cela augmente mécaniquement la **taille du code binaire** (*code bloat*). Le programme étant plus volumineux, il occupe davantage d'espace dans le cache d'instructions, augmentant ainsi les risques de conflits et d'évictions, ce qui dégrade légèrement la performance du cache IL1.
-
-En résumé, bien que la localité reste correcte pour tous, l'optimisation par déroulage de boucle (P4) a un coût négatif sur la localité du code par rapport aux versions plus compactes (P1 et P3).
+L’algorithme `unrol` présente un taux légèrement plus élevé, car le déroulage de boucles augmente la taille du code, mais la localité reste globalement excellente.
