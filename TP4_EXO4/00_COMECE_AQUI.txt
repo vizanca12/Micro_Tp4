@@ -1,0 +1,248 @@
+╔════════════════════════════════════════════════════════════════════════════╗
+║                                                                            ║
+║              TP4 EXERCICE 4 - ANÁLISE DE PERFORMANCES DE CACHES           ║
+║                                                                            ║
+║                          🚀 COMECE AQUI 🚀                                ║
+║                                                                            ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+
+BEM-VINDO! Este projeto contém TUDO que você precisa para completar o
+Exercício 4 do TP4: Simulação e análise de performances de Cortex A7/A15
+com diferentes configurações de cache L1 e L2.
+
+═════════════════════════════════════════════════════════════════════════════
+
+📋 PASSO 1: ENTENDER O PROJETO (5-10 minutos)
+
+  Leia nesta ordem:
+  
+  1. GUIA_VISUAL.txt ................. Visão geral visual
+  2. README.md ....................... Documentação completa
+  3. INSTRUCTIONS.md ................ Detalhes técnicos
+
+═════════════════════════════════════════════════════════════════════════════
+
+🚀 PASSO 2: PREPARAÇÃO (15 minutos)
+
+  1. Abra um terminal neste diretório:
+     
+     cd TP4_EXO4
+
+  2. Execute o script de verificação:
+     
+     ./04_quick_start.sh
+
+  Este script vai:
+  ✓ Verificar se gem5 está instalado
+  ✓ Verificar se RISC-V compiler está disponível
+  ✓ Verificar se CACTI está acessível
+  ✓ Mostrar os próximos passos
+
+═════════════════════════════════════════════════════════════════════════════
+
+⚙️  PASSO 3: COMPILAÇÃO (5 minutos)
+
+  Execute:
+  
+    ./01_compile_riscv.sh
+
+  Isto irá:
+  ✓ Compilar Dijkstra para RISC-V
+  ✓ Compilar BlowFish para RISC-V
+  ✓ Criar binários em binaries/
+
+═════════════════════════════════════════════════════════════════════════════
+
+⏳ PASSO 4: SIMULAÇÕES gem5 (1-4 HORAS)
+
+  Execute:
+  
+    ./02_run_simulations.sh
+
+  Isto irá:
+  ✓ Simular 20 configurações diferentes
+  ✓ Gerar estatísticas em results/
+  
+  ⚠️  IMPORTANTE: Isto pode levar 1-4 horas!
+  💡  Você pode deixar rodando e fazer outras coisas!
+
+═════════════════════════════════════════════════════════════════════════════
+
+📊 PASSO 5: ANÁLISE AUTOMÁTICA (5 minutos)
+
+  Depois que as simulações terminarem, execute:
+  
+    python3 03_analyze_results.py results/
+
+  Isto irá:
+  ✓ Processar todos os resultados
+  ✓ Gerar tabelas em CSV
+  ✓ Gerar resumo em TXT
+
+═════════════════════════════════════════════════════════════════════════════
+
+🔬 PASSO 6: ANÁLISE CACTI (30-60 minutos)
+
+  Para estimar a área dos caches usando CACTI:
+  
+  a) Criar arquivos .cfg para cada variação
+  b) Executar: ./cacti -infile cache_L1_A7_1KB.cfg
+  c) Coletar as áreas estimadas em mm²
+  
+  Veja INSTRUCTIONS.md para detalhes de cada passo
+
+═════════════════════════════════════════════════════════════════════════════
+
+📝 PASSO 7: REDAÇÃO DO RELATÓRIO (2-3 horas)
+
+  Use o arquivo RAPPORT_TEMPLATE.md como base:
+  
+  1. Copie RAPPORT_TEMPLATE.md para um editor
+  2. Preencha as respostas para Q1-Q14
+  3. Inclua as tabelas com dados reais
+  4. Inclua as figuras de performance
+  5. Redigir análises e conclusões
+  6. Converter para PDF
+
+═════════════════════════════════════════════════════════════════════════════
+
+📤 PASSO 8: SUBMISSÃO (10 minutos)
+
+  Prepare seu PDF:
+  - Nome: TP4-nome1-nome2-nome3-nome4.pdf
+  - Inclua: respostas, tabelas, figuras, análises
+  
+  Envie para:
+  - Para: hammami@ensta.fr
+  - CC: Seu chargé de TD
+  - Assunto: ECE_4ES01_TA/TP4
+  - Deadline: 23/02/2026
+
+═════════════════════════════════════════════════════════════════════════════
+
+📁 ESTRUTURA DE ARQUIVOS
+
+Documentação:
+  ├─ 00_COMECE_AQUI.txt ........... Este arquivo
+  ├─ README.md ................... Visão geral completa
+  ├─ INSTRUCTIONS.md ............. Documentação detalhada
+  ├─ RAPPORT_TEMPLATE.md ......... Template do relatório
+  ├─ INDICE.md ................... Índice de todos os arquivos
+  └─ GUIA_VISUAL.txt ............ Visual workflow
+
+Scripts de Execução:
+  ├─ 04_quick_start.sh ........... Verificação de prérequis
+  ├─ 01_compile_riscv.sh ........ Compilação de aplicações
+  ├─ 02_run_simulations.sh ....... Execução de simulações
+  └─ 03_analyze_results.py ....... Análise de resultados
+
+Configurações:
+  ├─ gem5_config.py ............. Configuração principal gem5
+  ├─ gem5_simple_config.py ....... Config simplificada
+  ├─ cache_L1_A7.cfg ............ Config CACTI A7
+  ├─ cache_L1_A15.cfg ........... Config CACTI A15
+  └─ example_results.py ......... Exemplo de dados
+
+Diretórios Gerados (após execução):
+  ├─ sources/ ................... Código fonte
+  ├─ build/ ..................... Arquivos temporários
+  ├─ binaries/ .................. Executáveis RISC-V
+  ├─ results/ ................... Resultados gem5
+  └─ analysis/ .................. Análises processadas
+
+═════════════════════════════════════════════════════════════════════════════
+
+🔧 PRÉREQUIS
+
+Para completar este projeto, você vai precisar de:
+
+1. **gem5** (simulator de arquitetura)
+   - Com suporte RISC-V
+   - http://www.gem5.org/
+
+2. **RISC-V Compiler** (riscv64-unknown-elf-gcc)
+   - Linux: sudo apt-get install gcc-riscv64-unknown-elf
+   - macOS: brew install riscv-gnu-toolchain
+
+3. **CACTI** (cache simulator)
+   - https://github.com/HewlettPackard/cacti
+   - Requer make e compilador C++
+
+4. **Python 3.6+**
+   - Para análise de resultados
+   - Bibliotecas padrão apenas (sem dependências externas)
+
+═════════════════════════════════════════════════════════════════════════════
+
+⏱️  TEMPO ESTIMADO
+
+  Preparação:        ~15 minutos
+  Compilação:        ~5 minutos
+  Simulações gem5:   ~1-4 horas (pode rodar em background)
+  Análise CACTI:     ~30-60 minutos
+  Cálculos/Gráficos: ~1 hora
+  Redação:           ~2-3 horas
+  ────────────────
+  TOTAL:             ~4-8 horas
+
+Dica: Paralelizar o trabalho entre os 4 membros do grupo!
+
+═════════════════════════════════════════════════════════════════════════════
+
+💡 DICAS IMPORTANTES
+
+✓ Não deletar "results/" - contém dados brutos
+✓ Começar simulações o MAIS CEDO POSSÍVEL (demoram!)
+✓ Usar exemplo_results.py para verificar formato esperado
+✓ Fazer backup antes de submeter
+✓ Guardar logs de todas as operações para troubleshooting
+
+═════════════════════════════════════════════════════════════════════════════
+
+🆘 PROBLEMAS COMUNS
+
+Problema: gem5 não encontrado
+Solução:  Verificar PATH ou usar caminho completo
+
+Problema: RISC-V compiler não encontrado
+Solução:  Instalar: sudo apt-get install gcc-riscv64-unknown-elf
+
+Problema: Simulações muito lentas
+Solução:  Normal! Pode levar 1-4 horas. Deixe rodando em background
+
+Problema: stats.txt vazio
+Solução:  Verificar logs (*.log) para erros de gem5
+
+Para mais detalhes, ver INSTRUCTIONS.md seção Troubleshooting
+
+═════════════════════════════════════════════════════════════════════════════
+
+📞 CONTATO
+
+Instrutor:     hammami@ensta.fr
+Chargé de TD:  [Adicionar e-mail do seu chargé de TD]
+Deadline:      23/02/2026
+Assunto Email: ECE_4ES01_TA/TP4
+
+═════════════════════════════════════════════════════════════════════════════
+
+🎯 PRÓXIMA AÇÃO
+
+Abra um terminal e execute:
+
+    cd TP4_EXO4
+    ./04_quick_start.sh
+
+Isto verificará se tudo está pronto para começar!
+
+═════════════════════════════════════════════════════════════════════════════
+
+Boa sorte! 🚀
+
+Qualquer dúvida, consulte:
+  1. GUIA_VISUAL.txt (visão geral)
+  2. INSTRUCTIONS.md (detalhes técnicos)
+  3. README.md (referência completa)
+
+═════════════════════════════════════════════════════════════════════════════

@@ -1,0 +1,305 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                  TP4 EXERCICE 4 - GUIA VISUAL DE EXECUÇÃO                    ║
+║         Simulação de Caches em Cortex A7/A15 com gem5 (RISC-V)               ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  ETAPA 1: PREPARAÇÃO INICIAL (Tempo: ~15 min)                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+  1. Ler documentação
+     ├─ README.md .................... Visão geral e instalação
+     └─ INSTRUCTIONS.md ............. Detalhes técnicos
+  
+  2. Executar verificação
+     └─ ./04_quick_start.sh ......... Verificar prérequis
+
+  3. Prérequis verificados?
+     ├─ ✓ gem5 instalado
+     ├─ ✓ RISC-V compiler instalado
+     ├─ ✓ CACTI disponível
+     └─ ✓ Python 3 disponível
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  ETAPA 2: COMPILAÇÃO (Tempo: ~5 min)                                        │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+  Ação: ./01_compile_riscv.sh
+
+    sources/
+    ├─ dijkstra.c
+    └─ blowfish/ (múltiplos arquivos)
+         ↓
+    COMPILADOR RISC-V (riscv64-unknown-elf-gcc)
+         ↓
+    build/ (temporário)
+    ├─ dijkstra.o
+    └─ blowfish.o
+         ↓
+    binaries/
+    ├─ dijkstra (executável RISC-V)
+    └─ blowfish (executável RISC-V)
+
+  Resultado esperado:
+    ✓ binaries/dijkstra
+    ✓ binaries/blowfish
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  ETAPA 3: SIMULAÇÕES gem5 (Tempo: ~1-4 horas) ⏳                           │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+  Ação: ./02_run_simulations.sh
+
+  CORTEX A7 (Processador "pequeno/eficiente")
+  ┌──────────────────────────────────────┐
+  │ L1 Cache Variation: 1KB → 32KB       │
+  │ L2 Cache: 512KB (fixo)               │
+  │                                      │
+  │ ├─ 1KB:  dijkstra + blowfish        │
+  │ ├─ 2KB:  dijkstra + blowfish        │
+  │ ├─ 4KB:  dijkstra + blowfish        │
+  │ ├─ 8KB:  dijkstra + blowfish        │
+  │ └─ 16KB: dijkstra + blowfish        │
+  │                                      │
+  │ → 10 simulações gem5                 │
+  └──────────────────────────────────────┘
+
+  CORTEX A15 (Processador "grande/rápido")
+  ┌──────────────────────────────────────┐
+  │ L1 Cache Variation: 2KB → 32KB       │
+  │ L2 Cache: 512KB (fixo)               │
+  │                                      │
+  │ ├─ 2KB:  dijkstra + blowfish        │
+  │ ├─ 4KB:  dijkstra + blowfish        │
+  │ ├─ 8KB:  dijkstra + blowfish        │
+  │ ├─ 16KB: dijkstra + blowfish        │
+  │ └─ 32KB: dijkstra + blowfish        │
+  │                                      │
+  │ → 10 simulações gem5                 │
+  └──────────────────────────────────────┘
+
+  Saída: results/
+  ├─ A7_L1_1KB/
+  │  ├─ dijkstra/
+  │  │  └─ stats.txt ............ Estatísticas gem5
+  │  └─ blowfish/
+  │     └─ stats.txt ............ Estatísticas gem5
+  ├─ A7_L1_2KB/
+  │  ├─ dijkstra/stats.txt
+  │  └─ blowfish/stats.txt
+  ... (e assim para todos os tamanhos e configurações)
+  └─ A15_L1_32KB/
+     ├─ dijkstra/stats.txt
+     └─ blowfish/stats.txt
+
+  Total: 20 simulações, ~100-200 MB de dados
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  ETAPA 4: ANÁLISE AUTOMÁTICA (Tempo: ~5 min)                                │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+  Ação: python3 03_analyze_results.py results/
+
+    results/ (20 stats.txt)
+         ↓
+    PARSER (gem5 stats extrator)
+         ↓
+    Métricas extraídas:
+    ├─ IPC (Instructions Per Cycle)
+    ├─ CPI (Cycles Per Instruction)
+    ├─ L1I Miss Rate
+    ├─ L1D Miss Rate
+    └─ L2 Miss Rate
+         ↓
+    analysis/
+    ├─ results.csv ............... Tabela completa
+    └─ summary.txt ............... Resumo legível
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  ETAPA 5: ANÁLISE CACTI (Tempo: ~30-60 min)                                 │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+  Para cada tamanho de L1 cache:
+
+  cache_L1_A7_1KB.cfg (criar a partir do template)
+  ├─ cache_size: 1
+  ├─ block_size: 32
+  ├─ associativity: 2
+  └─ technology_node: 28
+       ↓
+  ./cacti -infile cache_L1_A7_1KB.cfg
+       ↓
+  result_L1_A7_1KB.txt
+  {
+      "Cache Size (Bytes)": 1024
+      "Cache Total Area": 0.048 mm²
+      "Data Array Area": 0.035 mm²
+      "Tag Array Area": 0.013 mm²
+      ...
+  }
+
+  Repetir para:
+  ├─ A7: 1KB, 2KB, 4KB, 8KB, 16KB (5 tamanhos)
+  └─ A15: 2KB, 4KB, 8KB, 16KB, 32KB (5 tamanhos)
+
+  Total: 10 análises CACTI
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  ETAPA 6: CÁLCULOS E TABELAS (Tempo: ~1 hora)                               │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+  Dados necessários:
+  ├─ IPC (de gem5)
+  ├─ L1 + L2 area (de CACTI)
+  ├─ Power consomption (dado no énoncé)
+  └─ L1/L2 miss rates (de gem5)
+
+  Tabelas a preencher:
+  ├─ Q4: IPC/CPI vs L1 size (A7)
+  ├─ Q5: IPC/CPI vs L1 size (A15)
+  ├─ Q7: Surface dos caches L1
+  ├─ Q8: Surface total (L1+L2+core)
+  ├─ Q9: Efficacité surfacique = IPC / area
+  ├─ Q10: Power consomption (100mW A7, 500mW A15)
+  └─ Q11: Efficacité énergétique = IPC / power
+
+  Cálculos exemplo:
+  ┌─────────────────────────────────────────────────┐
+  │ Efficacité Surfacique:                          │
+  │ A7 16KB: 1.32 IPC / 1.8 mm² = 0.733 IPC/mm²   │
+  │ A15 32KB: 2.22 IPC / 4.2 mm² = 0.529 IPC/mm²  │
+  │ → A7 tem melhor eficiência surfacica           │
+  └─────────────────────────────────────────────────┘
+
+  ┌─────────────────────────────────────────────────┐
+  │ Efficacité Énergétique:                         │
+  │ A7 16KB: 1.32 IPC / 100 mW = 0.0132 IPC/mW   │
+  │ A15 32KB: 2.22 IPC / 500 mW = 0.0044 IPC/mW  │
+  │ → A7 é mais eficiente energéticamente          │
+  └─────────────────────────────────────────────────┘
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  ETAPA 7: ANÁLISES E CONCLUSÕES (Tempo: ~1 hora)                            │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+  Questões a responder:
+  
+  Q1-Q3: Profiling da aplicação
+    ├─ Que classes de instruções dominam?
+    ├─ Qual classe precisa de otimização?
+    └─ Como compara com TP2?
+
+  Q4-Q5: Impacto de L1 cache
+    ├─ IPC melhora com L1 maior? Até quando?
+    ├─ Miss rates diminuem?
+    └─ Qual config ótima?
+
+  Q6-Q7: CACTI baseline
+    ├─ Que área ocupam L1 caches padrão?
+    └─ Que % da área total?
+
+  Q8-Q9: Efficacité surfacique
+    ├─ Qual config tem melhor eficiência?
+    ├─ A7 vs A15?
+    └─ Há trade-off entre performance e área?
+
+  Q10-Q11: Efficacité énergétique
+    ├─ A7 é mais eficiente energéticamente?
+    ├─ Impacto da frequência?
+    └─ Qual processor escolher por aplicação?
+
+  Q12-Q14: Big.LITTLE strategy
+    ├─ Config ótima para cada app?
+    ├─ Há um compromisso?
+    └─ Metodologia geral de design?
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  ETAPA 8: REDAÇÃO DO RELATÓRIO (Tempo: ~2-3 horas)                          │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+  Arquivo: RAPPORT_TEMPLATE.md
+
+  Estrutura:
+  1. Capa
+     ├─ Nomes dos 4 membros
+     ├─ Data
+     └─ Curso
+
+  2. Seções numeradas (Q1-Q14)
+     ├─ Tabelas com dados reais
+     ├─ Figuras/gráficos
+     ├─ Análises escritas
+     └─ Conclusões
+
+  3. Anexos
+     ├─ Parâmetros gem5 utilizados
+     └─ Configurações CACTI
+
+  Formato: Markdown → Convert to PDF
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  ETAPA 9: SUBMISSÃO FINAL (Tempo: ~10 min)                                  │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+  1. Converter para PDF
+     └─ RAPPORT_TEMPLATE.md → TP4-nom1-nom2-nom3-nom4.pdf
+
+  2. Verificar checklist
+     ├─ ✓ Todas as 14 questões respondidas
+     ├─ ✓ Tabelas preenchidas
+     ├─ ✓ Figuras incluídas
+     ├─ ✓ Análises completas
+     └─ ✓ Sem erros de formatação
+
+  3. Enviar
+     ├─ Para: hammami@ensta.fr
+     ├─ CC: Chargé de TD
+     ├─ Assunto: ECE_4ES01_TA/TP4
+     └─ Deadline: 23/02/2026
+
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                          SUMÁRIO DE TEMPO                                    ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║  Preparação:     ~15 min                                                     ║
+║  Compilação:     ~5 min                                                      ║
+║  Simulações:     ~1-4 horas (⏳ pode ser deixado rodando)                   ║
+║  Análise:        ~1 hora (~30 min gem5 + ~30 min CACTI)                     ║
+║  Cálculos:       ~1 hora (tabelas, eficiências)                             ║
+║  Redação:        ~2-3 horas (complementar relatório)                         ║
+║  ───────────────────────────                                                ║
+║  TOTAL:          ~4-8 horas (dependendo da máquina)                         ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                          DICAS IMPORTANTES                                   ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                              ║
+║  1. NÃO DELETAR "results/" - contém dados brutos necessários               ║
+║                                                                              ║
+║  2. Simulações gem5 levam tempo - começar CEDO!                            ║
+║                                                                              ║
+║  3. Parallelizar trabalho:                                                  ║
+║     - Um membro: Simular (enquanto isso)                                    ║
+║     - Outro: Preparar análise CACTI                                         ║
+║     - Outro: Redigir seções iniciais                                        ║
+║                                                                              ║
+║  4. Usar example_results.py para verificar formato dos dados               ║
+║                                                                              ║
+║  5. Guardar logs de todas as operações (para troubleshooting)              ║
+║                                                                              ║
+║  6. Fazer backup de "results/" e "analysis/" antes de submeter             ║
+║                                                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+
+PRÓXIMA AÇÃO: Ler README.md e depois executar ./04_quick_start.sh
