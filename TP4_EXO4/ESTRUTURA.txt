@@ -1,0 +1,148 @@
+ESTRUTURA DO PROJETO TP4 EXERCÍCIO 4
+====================================
+
+~/Micro/Tp4/
+│
+└── TP_EXO4/
+    │
+    ├── 📄 Scripts Principais (executar em ordem)
+    │   ├── START_HERE.sh                 ← COMECE AQUI (menu interativo)
+    │   ├── test_setup.sh                 ← Verificar configuração
+    │   ├── 01_compile_riscv.sh           ← Compilar programas
+    │   ├── 02_run_simulations.sh         ← Executar simulações
+    │   └── 03_analyze_results.py         ← Analisar resultados
+    │
+    ├── 📋 Configurações
+    │   ├── gem5_config.py                ← Config gem5 (processador/cache)
+    │   ├── cache_L1_A7.cfg               ← Config CACTI Cortex A7
+    │   └── cache_L1_A15.cfg              ← Config CACTI Cortex A15
+    │
+    ├── 📚 Documentação
+    │   ├── LEIA-ME.txt                   ← Quick start em Português
+    │   ├── INSTRUCTIONS.md               ← Documentação técnica detalhada
+    │   ├── RAPPORT_TEMPLATE.md           ← Template para relatório final
+    │   ├── ESTRUTURA.txt                 ← Este arquivo
+    │   ├── INDICE.md                     ← Índice completo
+    │   └── GUIA_VISUAL.txt               ← Guia visual do workflow
+    │
+    ├── 📁 Diretórios (criados pela execução)
+    │   │
+    │   ├── binaries/                     ← Executáveis compilados
+    │   │   ├── dijkstra                  ← Dijkstra RISC-V
+    │   │   └── blowfish                  ← BlowFish RISC-V
+    │   │
+    │   ├── build/                        ← Arquivos intermediários
+    │   │   ├── dijkstra.c
+    │   │   ├── dijkstra_input.txt
+    │   │   ├── blowfish/
+    │   │   │   ├── *.c (fontes)
+    │   │   │   └── *.h (headers)
+    │   │   └── *.o (objetos compilados)
+    │   │
+    │   └── results/                      ← Resultados das simulações
+    │       │
+    │       ├── A7_L1_1KB/
+    │       │   ├── dijkstra/
+    │       │   │   ├── stats.txt
+    │       │   │   ├── config.ini
+    │       │   │   └── system.stat.txt
+    │       │   ├── blowfish/
+    │       │   │   ├── stats.txt
+    │       │   │   ├── config.ini
+    │       │   │   └── system.stat.txt
+    │       │   ├── dijkstra.log
+    │       │   └── blowfish.log
+    │       │
+    │       ├── A7_L1_2KB/    ← ... mais configs
+    │       │
+    │       ├── A15_L1_2KB/   ← ... configurações A15
+    │       │
+    │       └── analysis_results/  ← Gerado por analyze_results.py
+    │           ├── comparison_table.csv
+    │           ├── performance_comparison.png
+    │           ├── cache_misses_comparison.png
+    │           └── detailed_metrics.json
+    │
+    └── 📦 Sources (arquivos originais do projeto)
+        ├── sources/dijkstra/
+        │   └── dijkstra_small.c
+        └── sources/blowfish/
+            ├── bftest.c
+            ├── bf_skey.c
+            ├── bf_ecb.c
+            ├── bf_cfb64.c
+            ├── bf_ofb64.c
+            ├── bf_cbc.c
+            ├── bf_enc.c
+            ├── blowfish.h
+            └── ... (outros headers)
+
+
+FLUXO DE TRABALHO
+=================
+
+1. PREPARAÇÃO
+   - Copiar programas para sources/
+   - Verificar instalação: bash test_setup.sh
+
+2. COMPILAÇÃO
+   - Compilar para RISC-V: bash 01_compile_riscv.sh
+   - Binários salvos em: binaries/
+
+3. SIMULAÇÃO
+   - Executar em gem5: bash 02_run_simulations.sh
+   - Resultados salvos em: results/
+
+4. ANÁLISE
+   - Processar dados: python3 03_analyze_results.py results/
+   - Gráficos em: results/analysis_results/
+
+5. CACTI (OPCIONAL - para análise de potência)
+   - Para cada config: cacti -infile cache_L1_Ax.cfg
+
+6. RELATÓRIO
+   - Usar RAPPORT_TEMPLATE.md
+   - Incluir gráficos e dados
+   - Enviar resultado
+
+
+ARQUIVOS IMPORTANTES
+====================
+
+startup:
+  START_HERE.sh        - Menu interativo (execute primeiro)
+  test_setup.sh        - Verifica pré-requisitos
+
+executáveis:
+  01_compile_riscv.sh  - Compila Dijkstra + BlowFish
+  02_run_simulations.sh - Simula com diferentes configs
+  03_analyze_results.py - Processa dados e gera gráficos
+
+documentação:
+  LEIA-ME.txt          - Quick start
+  INSTRUCTIONS.md      - Detalhes técnicos
+  RAPPORT_TEMPLATE.md  - Para seu relatório final
+
+
+SAÍDA ESPERADA
+==============
+
+stats.txt (em cada results/*/programa/)
+  - system.cpu.cpi                    (cycles per instruction)
+  - system.cpu.dcache.overall_misses.sum  (data cache misses)
+  - system.cpu.icache.overall_misses.sum  (instruction cache misses)
+  - system.l2.overall_misses.sum      (L2 cache misses)
+  - simSeconds                        (tempo de simulação)
+
+CSV (gerado por analyze_results.py):
+  - Processor, L1_Size, Program, Cycles, IPC, etc.
+
+
+DICAS
+=====
+
+- Comece com: bash START_HERE.sh
+- Para debug: bash test_setup.sh
+- Se lento, reduza tamanho dos dados
+- Guarde os resultados antes de limpar
+- Use example_results.py como referência

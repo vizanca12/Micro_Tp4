@@ -21,6 +21,15 @@ echo "=========================================="
 
 # Configuration du compilateur RISC-V
 RISCV_CROSS_COMPILE="riscv64-unknown-elf-"
+RISCV_GCC="${RISCV_CROSS_COMPILE}gcc"
+
+# Vérifier que le compilateur RISC-V est disponible
+if ! command -v ${RISCV_GCC} &> /dev/null; then
+    echo "Erreur: Compilateur RISC-V non trouvé: ${RISCV_GCC}"
+    echo "Installez avec: sudo apt-get install gcc-riscv64-unknown-elf"
+    exit 1
+fi
+
 RISCV_FLAGS="-O2 -march=rv64i -mabi=lp64"
 
 # ========== Compilation Dijkstra ==========

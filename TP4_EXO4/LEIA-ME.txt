@@ -1,0 +1,149 @@
+======================================
+TP4 EXERCÍCIO 4 - RISC-V gem5
+======================================
+
+QUICK START:
+-----------
+
+1. Dê permissão de execução aos scripts:
+   chmod +x *.sh
+
+2. Execute o menu interativo:
+   bash START_HERE.sh
+
+3. Escolha as opções do menu:
+   - 1: Compilar Dijkstra e BlowFish para RISC-V
+   - 2: Executar simulações gem5
+   - 3: Analisar resultados
+   - 4: Fazer tudo de uma vez
+
+======================================
+CONFIGURAÇÃO
+======================================
+
+gem5 está configurado para usar:
+  - Localização: /home/vizanca/gem5
+  - ISA: RISC-V (rv64i)
+  - Processadores: Cortex A7 e A15 (simulados)
+
+RISC-V Compiler: riscv64-unknown-elf-gcc
+
+======================================
+ESTRUTURA DE DIRETÓRIOS
+======================================
+
+TP4_EXO4/
+├── START_HERE.sh              Menu interativo
+├── 01_compile_riscv.sh        Compilação
+├── 02_run_simulations.sh      Simulações
+├── 03_analyze_results.py      Análise
+├── gem5_config.py             Configuração do gem5
+├── cache_L1_A7.cfg            Config CACTI A7
+├── cache_L1_A15.cfg           Config CACTI A15
+├── INSTRUCTIONS.md            Documentação detalhada
+├── LEIA-ME.txt                Este arquivo
+└── sources/                   Programas originais (Dijkstra, BlowFish)
+
+Após execução:
+├── binaries/                  Executáveis compilados
+├── build/                     Arquivos intermediários
+└── results/                   Resultados das simulações
+
+======================================
+EXECUTANDO MANUALMENTE
+======================================
+
+Se preferir não usar o menu interativo:
+
+1. Compilar:
+   bash 01_compile_riscv.sh
+
+2. Simular:
+   bash 02_run_simulations.sh
+
+3. Analisar:
+   python3 03_analyze_results.py results/
+
+======================================
+RESULTADOS
+======================================
+
+Os resultados são salvos em:
+  TP4_EXO4/results/
+
+Estrutura:
+  results/
+  ├── A7_L1_1KB/
+  │   ├── dijkstra/stats.txt
+  │   └── blowfish/stats.txt
+  ├── A7_L1_2KB/
+  └── ... (mais configurações)
+
+Métricas coletadas:
+  - Number of CPU cycles
+  - L1 instruction cache misses
+  - L1 data cache misses
+  - L2 cache misses
+  - Instructions per cycle (IPC)
+  - Execution time
+
+======================================
+ANÁLISE COM CACTI
+======================================
+
+Para estimar consumo de energia/potência:
+
+1. Editar arquivo de configuração (ex: cache_L1_A7.cfg)
+2. Executar CACTI:
+   cacti -infile cache_L1_A7.cfg -outfile cache_L1_A7.out
+
+3. Extrair valores da saída
+
+Obs: CACTI não é necessário para o básico das simulações
+
+======================================
+TROUBLESHOOTING
+======================================
+
+Problema: "riscv64-unknown-elf-gcc: command not found"
+Solução: sudo apt-get install gcc-riscv64-unknown-elf
+
+Problema: "gem5 não encontrado"
+Solução: Verificar instalação em /home/vizanca/gem5
+
+Problema: "Permissão negada ao executar scripts"
+Solução: chmod +x *.sh
+
+Problema: Simulações muito lentas
+Solução: Isso é normal! gem5 é um simulador preciso mas lento
+         Comece com binários menores
+
+======================================
+ARQUIVOS IMPORTANTES
+======================================
+
+INSTRUCTIONS.md    - Documentação técnica completa
+RAPPORT_TEMPLATE.md - Template para seu relatório final
+example_results.py - Exemplos de formatos de dados esperados
+
+======================================
+PRÓXIMOS PASSOS
+======================================
+
+1. Compilar os programas
+2. Executar as simulações
+3. Coletar os dados de performance
+4. Usar CACTI para análise de potência (opcional)
+5. Gerar gráficos com os resultados
+6. Preencher o relatório (veja RAPPORT_TEMPLATE.md)
+
+======================================
+PARA MAIS INFORMAÇÕES
+======================================
+
+Leia: INSTRUCTIONS.md
+Veja: RAPPORT_TEMPLATE.md
+Execute: bash START_HERE.sh
+
+Boa sorte!
+======================================

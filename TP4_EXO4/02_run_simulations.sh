@@ -16,16 +16,23 @@ echo "=========================================="
 echo "Simulation gem5 - TP4 Exercice 4"
 echo "=========================================="
 
+# Configurer gem5 - utiliser le chemin local
+GEM5_ROOT="/home/vizanca/gem5"
+GEM5_BINARY="${GEM5_ROOT}/build/X86/gem5.opt"
+GEM5_SCRIPT="${SCRIPT_DIR}/gem5_config.py"
+
 # Vérifier que gem5 est disponible
-if ! command -v gem5 &> /dev/null; then
-    echo "Erreur: gem5 n'est pas trouvé dans le PATH"
-    echo "Assurez-vous que gem5 est installé et disponible dans le PATH"
+if [ ! -f "${GEM5_BINARY}" ]; then
+    echo "Erreur: gem5 n'est pas trouvé à ${GEM5_BINARY}"
+    echo "Vérifiez que gem5 est compilé dans ${GEM5_ROOT}"
     exit 1
 fi
 
-# Configurer gem5
-GEM5_BINARY="gem5"
-GEM5_SCRIPT="${SCRIPT_DIR}/gem5_config.py"
+# Vérifier que le script de configuration existe
+if [ ! -f "${GEM5_SCRIPT}" ]; then
+    echo "Erreur: Script gem5 non trouvé à ${GEM5_SCRIPT}"
+    exit 1
+fi
 
 # ========== Configuration Cortex A7 en RISC-V ==========
 echo ""
@@ -47,9 +54,10 @@ for L1_SIZE in 1 2 4 8 16; do
     mkdir -p "${RESULT_DIR}"
     
     # Dijkstra
-    ${GEM5_BINARY} \
+    echo "    Running Dijkstra simulation..."
+    "${GEM5_BINARY}" \
         --outdir="${RESULT_DIR}/dijkstra" \
-        -c "${GEM5_SCRIPT}" \
+        "${GEM5_SCRIPT}" \
         --processor="a7" \
         --l1i_size="${L1_SIZE}KB" \
         --l1d_size="${L1_SIZE}KB" \
@@ -60,9 +68,10 @@ for L1_SIZE in 1 2 4 8 16; do
         2>&1 | tee "${RESULT_DIR}/dijkstra.log" || true
     
     # BlowFish
-    ${GEM5_BINARY} \
+    echo "    Running BlowFish simulation..."
+    "${GEM5_BINARY}" \
         --outdir="${RESULT_DIR}/blowfish" \
-        -c "${GEM5_SCRIPT}" \
+        "${GEM5_SCRIPT}" \
         --processor="a7" \
         --l1i_size="${L1_SIZE}KB" \
         --l1d_size="${L1_SIZE}KB" \
@@ -93,9 +102,10 @@ for L1_SIZE in 2 4 8 16 32; do
     mkdir -p "${RESULT_DIR}"
     
     # Dijkstra
-    ${GEM5_BINARY} \
+    echo "    Running Dijkstra simulation..."
+    "${GEM5_BINARY}" \
         --outdir="${RESULT_DIR}/dijkstra" \
-        -c "${GEM5_SCRIPT}" \
+        "${GEM5_SCRIPT}" \
         --processor="a15" \
         --l1i_size="${L1_SIZE}KB" \
         --l1d_size="${L1_SIZE}KB" \
@@ -106,9 +116,10 @@ for L1_SIZE in 2 4 8 16 32; do
         2>&1 | tee "${RESULT_DIR}/dijkstra.log" || true
     
     # BlowFish
-    ${GEM5_BINARY} \
+    echo "    Running BlowFish simulation..."
+    "${GEM5_BINARY}" \
         --outdir="${RESULT_DIR}/blowfish" \
-        -c "${GEM5_SCRIPT}" \
+        "${GEM5_SCRIPT}" \
         --processor="a15" \
         --l1i_size="${L1_SIZE}KB" \
         --l1d_size="${L1_SIZE}KB" \
