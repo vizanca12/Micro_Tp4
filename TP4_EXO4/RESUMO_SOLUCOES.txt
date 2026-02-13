@@ -1,0 +1,66 @@
+============================================
+RESUMO - Soluções para TP4 Exercício 4
+============================================
+
+SEU PROBLEMA:
+- Erro ao compilar Dijkstra para RISC-V com riscv64-unknown-elf-gcc
+- "cannot find crt0.o", "cannot find -lc", "cannot find -lgloss"
+
+CAUSA:
+- O compilador riscv64-unknown-elf-gcc é bare-metal (sem libc)
+- Você precisa de um compilador com bibliotecas padrão
+
+SOLUÇÕES RÁPIDAS:
+============================================
+
+SOLUÇÃO 1: Usar o compilador correto (RECOMENDADO)
+----------------------------------------
+sudo apt-get install gcc-riscv64-linux-gnu
+
+# Compile Dijkstra
+riscv64-linux-gnu-gcc -O2 -o dijkstra_small dijkstra_small.c
+
+# Execute com gem5
+/home/vizanca/gem5/build/X86/gem5.opt -c gem5_config.py \
+    --binary=./dijkstra_small
+
+
+SOLUÇÃO 2: Script automático (MAIS FÁCIL)
+----------------------------------------
+bash TP4_EXO4/SETUP_E_RUN.sh
+
+Este script vai:
+- Detectar compilador
+- Compilar Dijkstra e BlowFish
+- Gerar binários em TP4_EXO4/binaries/
+- Criar script de teste
+
+
+SOLUÇÃO 3: Usar binários já existentes
+----------------------------------------
+Você já tem:
+- BlowFish compilado em: archive/ES201-TP/TP4/Projet/blowfish/bftest
+
+Pode usar diretamente com gem5:
+/home/vizanca/gem5/build/X86/gem5.opt -c gem5_config.py \
+    --binary=archive/ES201-TP/TP4/Projet/blowfish/bftest
+
+
+PRÓXIMOS PASSOS:
+============================================
+
+1. Escolha uma solução acima
+2. Compile os binários
+3. Execute simulações:
+   /home/vizanca/gem5/build/X86/gem5.opt -c gem5_config.py \
+       --binary=<seu_binário> \
+       --outdir=results/teste
+
+4. Analise resultados em results/teste/stats.txt
+
+ARQUIVOS IMPORTANTES:
+============================================
+- COMPILAR_DIJKSTRA.md       - Guia detalhado de compilação
+- SETUP_E_RUN.sh             - Script automático (RECOMENDADO)
+- gem5_config.py             - Configuração de simulação
+- 03_analyze_results.py      - Análise de resultados
