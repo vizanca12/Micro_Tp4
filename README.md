@@ -1,62 +1,51 @@
-# Rapport TP4 : Hiérarchie Mémoire et Caches
+# TP4 : Évaluation des Performances Caches & Architecture big.LITTLE
 
-## Q1 – Paramètres du simulateur de cache gem5
+Ce dépôt contient les scripts de simulation, les résultats bruts et le rapport d'analyse approfondie réalisés dans le cadre du module **Architecture des Microprocesseurs (CSC_4OS02_TA)** à l'**ENSTA Paris**.
 
-Dans cette question, nous déterminons les paramètres d’entrée du simulateur de cache gem5 pour les deux configurations de caches décrites dans le Tableau 7.
+L'objectif de ce projet est d'explorer l'impact du dimensionnement des mémoires caches (L1) sur les performances brutes, l'empreinte physique (silicium) et la consommation énergétique de deux microarchitectures ARM fondamentalement différentes : le **Cortex A7** (In-Order, basse consommation) et le **Cortex A15** (Out-of-Order superscalaire, haute performance).
 
-L’associativité est déduite du type d’organisation du cache : un cache direct-mapped correspond à une associativité égale à 1, tandis qu’un cache n-way set associative possède une associativité égale à n.
+---
 
-Pour la configuration C1, les trois niveaux de cache (IL1, DL1 et UL2) sont de type direct-mapped. Les paramètres du simulateur sont donc :
+## Outils et Technologies
+* **Gem5** : Simulateur microarchitectural cycle-précis utilisé pour évaluer l'IPC (Instructions Per Cycle) et les taux de défauts de cache (Miss Rates).
+* **CACTI** : Outil d'estimation analytique utilisé pour modéliser la surface physique (mm²) des caches L1 et L2 en technologie 32nm et 28nm.
+* **Python** : Scripts de configuration matérielle pour Gem5 (se_A7.py, se_A15.py).
+* **LaTeX** : Rédaction du rapport d'analyse scientifique.
 
-* **IL1** : 4 KB, associativité 1, taille de bloc 32 octets
-* **DL1** : 4 KB, associativité 1, taille de bloc 32 octets
-* **UL2** : 32 KB, associativité 1, taille de bloc 32 octets
+---
 
-Pour la configuration C2, le cache d’instructions L1 reste direct-mapped, tandis que le cache de données L1 est 2-way set associative et le cache L2 est 4-way set associative. Les paramètres correspondants sont :
+## Benchmarks Étudiés
+Afin de mettre en évidence les goulots d'étranglement matériels, deux algorithmes aux comportements antagonistes ont été profilés et simulés :
+1. **Dijkstra** : Algorithme de parcours de graphe. Comportement typique **Memory-Bound** (fort taux de pointer chasing et dépendance de données).
+2. **Blowfish** : Algorithme de chiffrement cryptographique. Comportement typique **Compute-Bound** (fort potentiel de parallélisme d'instructions - ILP).
 
-* **IL1** : 4 KB, associativité 1, taille de bloc 32 octets
-* **DL1** : 4 KB, associativité 2, taille de bloc 32 octets
-* **UL2** : 32 KB, associativité 4, taille de bloc 32 octets
+---
 
+## Résultats Principaux (Key Findings)
 
-## Q2 – Résultats des simulations (Taux de défauts)
+L'étude croisée des métriques de performance, de surface (SWaP-C) et d'énergie a permis de démontrer empiriquement les concepts avancés d'architecture des ordinateurs :
 
-Nous avons simulé les quatre variantes de l’algorithme de multiplication de matrices (P1, P2, P3, P4) sur les deux configurations de caches (C1 et C2). Les tableaux ci-dessous résument les taux de défauts (*Miss Rates*) obtenus via gem5.
+* **La Loi des Rendements Décroissants (Cortex A7) :** Bridé par une fenêtre d'exécution minuscule (RUU=2), le Cortex A7 sature rapidement. Augmenter son cache L1 au-delà de 8 KB gaspille de la surface silicium sans gain de performance notable. Il reste cependant le champion absolu de l'efficacité énergétique pour les tâches limitées par la mémoire.
+* **Le Paradoxe de l'Efficacité Surfacique (Cortex A15) :** Bien que physiquement massif, le Cortex A15 et son exécution Out-of-Order agressive (RUU=16) maintiennent ses unités de calcul constamment nourries en données. Sur des calculs lourds, il offre paradoxalement une meilleure rentabilité par mm² que le petit processeur A7.
+* **Le Concept de Race-to-Sleep :** Sur l'algorithme Blowfish, le puissant Cortex A15 consomme 5 fois plus de puissance en crête (500 mW), mais termine les calculs si rapidement qu'il consomme finalement moins d'énergie totale que l'A7.
+* **Validation du paradigme big.LITTLE :** La conclusion du projet justifie la conception de SoCs hétérogènes asymétriques, où le système d'exploitation route les tâches de fond vers le cluster A7 (LITTLE) et les tâches critiques vers le cluster A15 (big).
 
-### Tableau 9 — Instruction Cache (IL1) Miss Rate
+---
 
-| Programme        | C1        | C2        |
-|------------------|-----------|-----------|
-| P1 (normale)     | 0.000097  | 0.000096  |
-| P2 (pointeur)    | 0.000088  | 0.000088  |
-| P3 (tempo)       | 0.000088  | 0.000088  |
-| P4 (unrol)       | 0.000133  | 0.000134  |
+## Structure du Dépôt
 
+Micro_Tp4/
+* **archive/** : Dossier d'archives et ressources complémentaires.
+* **TP4/** : Dossier principal du TP.
+  * **ex4/** : Scripts, statistiques Gem5 et résultats pour l'évaluation des performances (Cortex A7 et A15).
+  * **exo3/** : Données et scripts relatifs à l'étude de la localité des caches (Multiplication de matrices).
 
-### Tableau 10 — Data Cache (DL1) Miss Rate
+---
 
-| Programme        | C1        | C2        |
-|------------------|-----------|-----------|
-| P1 (normale)     | 0.201756  | 0.208527  |
-| P2 (pointeur)    | 0.199701  | 0.205574  |
-| P3 (tempo)       | 0.199700  | 0.205575  |
-| P4 (unrol)       | 0.290973  | 0.299470  |
+## Auteurs
+* Lucca Amodio
+* Vinicius Cesar Cavallaro Zancheta
+* Serena Dagher
+* Danylo Danyliuk
 
-
-### Tableau 11 — Unified Cache L2 (UL2) Miss Rate
-
-| Programme        | C1        | C2        |
-|------------------|-----------|-----------|
-| P1 (normale)     | 0.494761  | 0.412146  |
-| P2 (pointeur)    | 0.500437  | 0.422006  |
-| P3 (tempo)       | 0.500438  | 0.422006  |
-| P4 (unrol)       | 0.500487  | 0.422118  |
-
-
-## Q3 — Localité de références du code
-
-Les quatre algorithmes de multiplication de matrices présentent une **bonne localité de références pour le code**.  
-Leur exécution repose principalement sur des **boucles imbriquées** qui réutilisent les mêmes instructions de façon répétitive.  
-La taille du code est **faible par rapport à la taille du cache d’instructions (4 KB)**, ce qui permet de conserver la majorité des instructions en cache et explique les **taux de défauts très faibles** observés.  
-
-L’algorithme `unrol` présente un taux légèrement plus élevé, car le déroulage de boucles augmente la taille du code, mais la localité reste globalement excellente.
+*Projet réalisé en février 2026.*
